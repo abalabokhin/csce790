@@ -51,6 +51,34 @@ fn recalculate_cost_to_goals(
     return new_costs_to_goal;
 }
 
+fn are_arrays_different(a1 : &Vec<f32>, a2 : &Vec<f32>, epsilon: f32)->bool {
+    for i in 0..a1.len() {
+        if (a1[i] - a2[i]).abs() > epsilon {
+            return true;
+        }
+    }
+    return false;
+}
+
+fn build_plan_based_on_costs_to_goal(available_states : &Vec<State>, robot_actions : &Vec<Action>, costs_to_goal: &Vec<f32>)->Vec<Action> {
+    return vec![];
+}
+
+fn build_optimal_plan(available_states : &Vec<State>, robot_actions : &Vec<Action>, nature_behaviour : &HashMap<Action, f32>)->(i32, Vec<f32>, Vec<Action>) {
+    let mut costs_to_goal = available_states.iter().map(|ref x| if is_goal(x) {0.} else {INFINITY}).collect::<Vec<f32>>();    
+    let mut x = 0;
+    loop {
+        let new_costs_to_goal = recalculate_cost_to_goals(&available_states, &robot_actions, &nature_behaviour, &costs_to_goal);
+        if !are_arrays_different(&new_costs_to_goal, &costs_to_goal, 0.1) {
+            break;
+        }
+        costs_to_goal = new_costs_to_goal;
+        x += 1;
+    }
+    let plan = build_plan_based_on_costs_to_goal(&available_states, &robot_actions, &costs_to_goal);
+    return (x, costs_to_goal, plan);
+}
+
 fn main() {
     let mut states = vec![]; 
     // Creating all states
@@ -62,15 +90,11 @@ fn main() {
         }
     }
 
-    let mut costs_to_goal = states.iter().map(|ref x| if is_goal(x) {0.} else {INFINITY}).collect::<Vec<f32>>();
-
     let robot_actions = vec![Action{di : 0, dj : 0}, Action{di : 1, dj : 0}, Action{di : 0, dj : 1}, Action{di : -1, dj : 0}, Action{di : 0, dj : -1}];
     let mut no_nature_behaviour = HashMap::new();
     no_nature_behaviour.insert(Action{di : 0, dj : 0}, 1.);
 
-    for x in 1..1000 {
-        costs_to_goal = recalculate_cost_to_goals(&states, &robot_actions, &no_nature_behaviour, &costs_to_goal);
-    }
+    let costs_to_goal = build_optimal_plan(&states, &robot_actions, &no_nature_behaviour);
 
     println!("{:?}", states);
     println!("{:?}", no_nature_behaviour);
