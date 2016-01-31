@@ -61,7 +61,22 @@ fn are_arrays_different(a1 : &Vec<f32>, a2 : &Vec<f32>, epsilon: f32)->bool {
 }
 
 fn build_plan_based_on_costs_to_goal(available_states : &Vec<State>, robot_actions : &Vec<Action>, costs_to_goal: &Vec<f32>)->Vec<Action> {
-    return vec![];
+    let mut plan = vec![];
+    for ref state in available_states {
+        let mut min_cost_to_goal = if is_goal(state) {0.} else {INFINITY};
+        let mut best_action = Action{di: 0, dj: 0};
+        for ref action in robot_actions {
+            let new_state = do_action(&state, &action, &Action{di: 0, dj: 0}, &available_states);
+            let position = available_states.iter().position(|ref x| x.i == new_state.i && x.j == new_state.j).unwrap();
+            if costs_to_goal[position] + 1. < min_cost_to_goal {
+                min_cost_to_goal = costs_to_goal[position] + 1.;
+                best_action = Action{di: action.di, dj: action.dj};
+            }
+        }
+        plan.push(best_action);
+    }
+
+    return plan; 
 }
 
 fn build_optimal_plan(available_states : &Vec<State>, robot_actions : &Vec<Action>, nature_behaviour : &HashMap<Action, f32>)->(i32, Vec<f32>, Vec<Action>) {
