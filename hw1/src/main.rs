@@ -36,7 +36,11 @@ fn recalculate_cost_to_goals(
         let mut min_cost_to_goal = if is_goal(state) {0.} else {INFINITY}; 
         for ref action in robot_actions {
             let mut current_cost_to_goal = 0.;
-            for ref nature_action in nature_behabiour {
+            for (ref nature_action, ref probability) in nature_behabiour {
+                let new_state = do_action(&state, &action, &nature_action, &available_states);
+                let position = available_states.iter().position(|ref x| x.i == new_state.i && x.j == new_state.j).unwrap();
+                let contribution = *probability * (costs_to_goal[position] + 1.);
+                current_cost_to_goal += contribution;
             }
             if current_cost_to_goal < min_cost_to_goal {
                 min_cost_to_goal = current_cost_to_goal;
