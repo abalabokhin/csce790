@@ -1,4 +1,7 @@
+extern crate rand;
+
 use std::collections::HashMap;
+use rand::distributions::{IndependentSample, Range};
 
 const INFINITY: f32 = 10000.;
 const W: i32 = 15;
@@ -28,7 +31,7 @@ fn do_action(st : &State, robot_action : &Action, nature_action : &Action, avail
 fn recalculate_cost_to_goals(
     available_states : &Vec<State>, 
     robot_actions : &Vec<Action>, 
-    nature_behabiour : &HashMap<Action, f32>, 
+    nature_behaviour : &HashMap<Action, f32>, 
     costs_to_goal : &Vec<f32>)->Vec<f32> {
     
     let mut new_costs_to_goal = vec![];
@@ -36,7 +39,7 @@ fn recalculate_cost_to_goals(
         let mut min_cost_to_goal = if is_goal(state) {0.} else {INFINITY}; 
         for ref action in robot_actions {
             let mut current_cost_to_goal = 0.;
-            for (ref nature_action, ref probability) in nature_behabiour {
+            for (ref nature_action, ref probability) in nature_behaviour {
                 let new_state = do_action(&state, &action, &nature_action, &available_states);
                 let position = available_states.iter().position(|ref x| x.i == new_state.i && x.j == new_state.j).unwrap();
                 let contribution = *probability * (costs_to_goal[position] + 1.);
@@ -121,6 +124,31 @@ fn print_plan(available_states : &Vec<State>, plan : &Vec<Action>) {
     }
 }
 
+fn choose_nature_action_randomly(nature_behaviour : &HashMap<Action, f32>)->Action {
+    let between = Range::new(0f32, 1.);
+    let mut rng = rand::thread_rng();
+    let a = between.ind_sample(&mut rng);
+    let mut sum = 0f32;
+    for (ref nature_action, ref probability) in nature_behaviour {
+        sum += **probability;
+        if sum >= a {
+            return Action{di: nature_action.di, dj: nature_action.dj};
+        }
+    }
+    return Action{di: 0, dj: 0};
+}
+
+fn simulate_robot(nature_behaviour : &HashMap<Action, f32>, start_state : &State, available_states : &Vec<State>, plan : &Vec<Action>)->i32 {
+    
+
+
+
+
+
+    return 0;
+
+}
+
 fn main() {
     let mut states = vec![]; 
     // Creating all states
@@ -155,4 +183,7 @@ fn main() {
     print_costs(&states, &plan2.1);
     print_plan(&states, &plan2.2);
 
+    for _ in 1..100 {
+        choose_nature_action_randomly(&nature_behaviour);
+    }
 }
