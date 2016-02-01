@@ -139,14 +139,17 @@ fn choose_nature_action_randomly(nature_behaviour : &HashMap<Action, f32>)->Acti
 }
 
 fn simulate_robot(nature_behaviour : &HashMap<Action, f32>, start_state : &State, available_states : &Vec<State>, plan : &Vec<Action>)->i32 {
-    
-
-
-
-
-
-    return 0;
-
+    let mut current_state = State{i: start_state.i, j: start_state.j};
+    let mut total_cost = 0;
+    loop {
+        let nature_action = choose_nature_action_randomly(&nature_behaviour);
+        let action = &plan[available_states.iter().position(|ref x| x.i == current_state.i && x.j == current_state.j).unwrap()];
+        current_state = do_action(&current_state, action, &nature_action, available_states);
+        total_cost += 1;
+        if is_goal(&current_state) {
+            return total_cost;
+        }
+    }
 }
 
 fn main() {
@@ -183,8 +186,11 @@ fn main() {
     print_costs(&states, &plan2.1);
     print_plan(&states, &plan2.2);
 
-    for _ in 1..100 {
-        let action = choose_nature_action_randomly(&nature_behaviour);
-        println!("{:?}", action);
+    //let mut distrubution = HashMap::new();
+    let mut average_cost = 0.;
+    for _ in 1..10000 {
+        let cost = simulate_robot(&nature_behaviour, &State{i:1, j:1}, &states, &plan2.2);
+        average_cost += cost as f32 / 1000.;
     }
+    println!("av cost {}", average_cost);
 }
