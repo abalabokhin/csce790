@@ -184,6 +184,7 @@ fn main() {
     print_plan(&states, &plan2.2);
 
     for _ in 1..100 {
-        choose_nature_action_randomly(&nature_behaviour);
+        let action = choose_nature_action_randomly(&nature_behaviour);
+        println!("{:?}", action);
     }
 }
