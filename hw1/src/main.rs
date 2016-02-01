@@ -1,5 +1,6 @@
 extern crate rand;
 
+use std::collections::BTreeMap;
 use std::collections::HashMap;
 use rand::distributions::{IndependentSample, Range};
 
@@ -168,10 +169,12 @@ fn main() {
     no_nature_behaviour.insert(Action{di : 0, dj : 0}, 1.);
 
     let plan = build_optimal_plan(&states, &robot_actions, &no_nature_behaviour);
-    
-    println!("1. Iterations to converge: {}", plan.0);
-    println!("2. It would be no difference. The algorithm is the same. The difference is that transition function works as a black box.");
-    println!("do_action function in my case.");
+     
+    println!("1. ");
+    println!("\tIterations to converge: {}", plan.0);
+    println!("2. ");
+    println!("\tIt would be no difference. The algorithm is the same. The difference is that transition function works as a black box.");
+    println!("\tdo_action function in my case.");
 
     let mut nature_behaviour = HashMap::new();
     nature_behaviour.insert(Action{di : 0, dj : 0}, 0.5);
@@ -186,11 +189,19 @@ fn main() {
     print_costs(&states, &plan2.1);
     print_plan(&states, &plan2.2);
 
-    //let mut distrubution = HashMap::new();
+    let mut distribution = BTreeMap::new();
     let mut average_cost = 0.;
-    for _ in 1..10000 {
+    for _ in 1..1000 {
         let cost = simulate_robot(&nature_behaviour, &State{i:1, j:1}, &states, &plan2.2);
+        if distribution.contains_key(&cost) {
+            *distribution.get_mut(&cost).unwrap() += 1;
+        } else {
+            distribution.insert(cost, 1);
+        }
         average_cost += cost as f32 / 1000.;
     }
-    println!("av cost {}", average_cost);
+    println!("4. ");
+    println!("\tCost distribution in 1000 samples is: {:?}", distribution);
+    println!("\tAverage cost is {}.", average_cost);
+    println!("\tAerage cost is really close to computed cost");
 }
