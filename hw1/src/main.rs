@@ -94,11 +94,38 @@ fn build_optimal_plan(available_states : &Vec<State>, robot_actions : &Vec<Actio
     return (x, costs_to_goal, plan);
 }
 
+fn print_costs(available_states : &Vec<State>, costs_to_goal: &Vec<f32>) {
+    println!("Optimal costs to goal:");
+    for y in 1..W + 1 {
+        for x in 1..W + 1 {
+            match available_states.iter().position(|ref pos| pos.i == x && pos.j == y) {
+                Some(v)     => { let formatted_number = format!("{:.*}", 2, costs_to_goal[v]); print!("{}\t", formatted_number); }
+                None        => print!("\t")
+            }
+        }
+        println!("");
+    }
+}
+
+
+fn print_plan(available_states : &Vec<State>, plan : &Vec<Action>) {
+    println!("Optimal action plan:");
+    for y in 1..W + 1 {
+        for x in 1..W + 1 {
+            match available_states.iter().position(|ref pos| pos.i == x && pos.j == y) {
+                Some(v)     => print!("{},{}\t", plan[v].di, plan[v].dj),
+                None        => print!("\t")
+            }
+        }
+        println!("");
+    }
+}
+
 fn main() {
     let mut states = vec![]; 
     // Creating all states
-    for x in 1..W + 1 {
-        for y in 1..W + 1 {
+    for y in 1..W + 1 {
+        for x in 1..W + 1 {
             if x <= W / 3 || x > 2 * W / 3 || y <= W / 3 || y > 2 * W / 3 {
                 states.push(State {i: x, j : y}); 
             }
@@ -109,9 +136,23 @@ fn main() {
     let mut no_nature_behaviour = HashMap::new();
     no_nature_behaviour.insert(Action{di : 0, dj : 0}, 1.);
 
-    let costs_to_goal = build_optimal_plan(&states, &robot_actions, &no_nature_behaviour);
+    let plan = build_optimal_plan(&states, &robot_actions, &no_nature_behaviour);
+    
+    println!("1. Iterations to converge: {}", plan.0);
+    println!("2. It would be no difference. The algorithm is the same. The difference is that transition function works as a black box.");
+    println!("do_action function in my case.");
 
-    println!("{:?}", states);
-    println!("{:?}", no_nature_behaviour);
-    println!("{:?}", costs_to_goal);
+    let mut nature_behaviour = HashMap::new();
+    nature_behaviour.insert(Action{di : 0, dj : 0}, 0.5);
+    nature_behaviour.insert(Action{di : 1, dj : 0}, 0.125);
+    nature_behaviour.insert(Action{di : 0, dj : 1}, 0.125);
+    nature_behaviour.insert(Action{di : -1, dj : 0}, 0.125);
+    nature_behaviour.insert(Action{di : 0, dj : -1}, 0.125);
+
+    let plan2 = build_optimal_plan(&states, &robot_actions, &nature_behaviour);
+    
+    println!(3.);
+    print_costs(&states, &plan2.1);
+    print_plan(&states, &plan2.2);
+
 }
