@@ -177,11 +177,11 @@ fn main() {
     println!("\tdo_action function in my case.");
 
     let mut nature_behaviour = HashMap::new();
-    nature_behaviour.insert(Action{di : 0, dj : 0}, 0.5);
-    nature_behaviour.insert(Action{di : 1, dj : 0}, 0.125);
-    nature_behaviour.insert(Action{di : 0, dj : 1}, 0.125);
-    nature_behaviour.insert(Action{di : -1, dj : 0}, 0.125);
-    nature_behaviour.insert(Action{di : 0, dj : -1}, 0.125);
+    nature_behaviour.insert(Action{di : 0, dj : 0}, 0.96);
+    nature_behaviour.insert(Action{di : 1, dj : 0}, 0.01);
+    nature_behaviour.insert(Action{di : 0, dj : 1}, 0.01);
+    nature_behaviour.insert(Action{di : -1, dj : 0}, 0.01);
+    nature_behaviour.insert(Action{di : 0, dj : -1}, 0.01);
 
     let plan2 = build_optimal_plan(&states, &robot_actions, &nature_behaviour);
     
@@ -204,4 +204,10 @@ fn main() {
     println!("\tCost distribution in 1000 samples is: {:?}", distribution);
     println!("\tAverage cost is {}.", average_cost);
     println!("\tAerage cost is really close to computed cost");
+
+    println!("5. Fun with code is not shown in the code. I did some experiments by changing code and then changed everything back.");
+    println!("However the answers:");
+    println!("1. Even if W = 60, it takes about 20 seconds to wait for the convergence with some nature actions. With 90 I didn't wait long enough. The algorithm may be not optimal, though.");
+    println!("2. If the probability of Qk = 0 is close two zero in doesn't change anything much. Cause the nature has an equal chance to help robot and to move it back");
+    println!("3. If the probability of Qk is close to 1, the result is close to the problem in 1. Actually the problem in 1 was done by using this probability equal to 1.");
 }
