@@ -170,11 +170,9 @@ fn main() {
 
     let plan = build_optimal_plan(&states, &robot_actions, &no_nature_behaviour);
      
-    println!("1. ");
-    println!("\tIterations to converge: {}", plan.0);
-    println!("2. ");
-    println!("\tIt would be no difference. The algorithm is the same. The difference is that transition function works as a black box.");
-    println!("\tdo_action function in my case.");
+    println!("1. Iterations to converge: {}", plan.0);
+    println!("2. If the nature can choose the worst case every time, it can prevent us from reaching the goal from every, not goal position. Thus, the cost function would be infinity in any state except goal ones.
+    However if the nature can push us only right and bottom, the worst case nature strategy would be to do nothing. The algorithm is the same as if we have no nature at all, see 1).");
 
     let mut nature_behaviour = HashMap::new();
     nature_behaviour.insert(Action{di : 0, dj : 0}, 0.96);
@@ -200,14 +198,12 @@ fn main() {
         }
         average_cost += cost as f32 / 1000.;
     }
-    println!("4. ");
-    println!("\tCost distribution in 1000 samples is: {:?}", distribution);
+    println!("4. Cost distribution in 1000 samples is: {:?}", distribution);
     println!("\tAverage cost is {}.", average_cost);
     println!("\tAerage cost is really close to computed cost");
 
-    println!("5. Fun with code is not shown in the code. I did some experiments by changing code and then changed everything back.");
-    println!("However the answers:");
-    println!("1. Even if W = 60, it takes about 20 seconds to wait for the convergence with some nature actions. With 90 I didn't wait long enough. The algorithm may be not optimal, though.");
-    println!("2. If the probability of Qk = 0 is close two zero in doesn't change anything much. Cause the nature has an equal chance to help robot and to move it back");
-    println!("3. If the probability of Qk is close to 1, the result is close to the problem in 1. Actually the problem in 1 was done by using this probability equal to 1.");
+    println!("5. Fun with code is not shown in the code. I did some experiments by changing code and then changed everything back. However the answers:
+    1. Even if W = 60, it takes about 20 seconds to wait for the convergence with some nature actions. With 90 I didn't wait long enough. The algorithm can be optimized, though. Now T(n) = O(W^4), but it can be optimized to O(W^3), if I calculated it right.
+    2. If the probability of Qk = 0 is close two zero in doesn't change anything much. Cause the nature has an equal chance to help robot and to move it back
+    3. If the probability of Qk is close to 1, the result is close to the problem in 1. Actually the problem in 1 was done by using this probability equal to 1.");
 }
