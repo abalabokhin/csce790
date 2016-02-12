@@ -23,7 +23,7 @@ fn is_goal(x: &State) -> bool { x.i > 2 * W / 3 && x.j > 2 * W / 3 }
 
 fn do_action(st : &State, robot_action : &Action, nature_action : &Action, available_states : &[State]) -> State {
     let new_state = State{i: st.i + robot_action.di + nature_action.di, j : st.j + robot_action.dj + nature_action.dj};
-    match available_states.iter().position(|ref x| x.i == new_state.i && x.j == new_state.j) {
+    match available_states.iter().position(|x| x.i == new_state.i && x.j == new_state.j) {
         Some(_x)    => new_state,
         None        => State{i: st.i, j: st.j}
     }
@@ -36,14 +36,14 @@ fn recalculate_cost_to_goals(
     costs_to_goal : &[f32])->Vec<f32> {
     
     let mut new_costs_to_goal = vec![];
-    for ref state in available_states {
+    for state in available_states {
         let mut min_cost_to_goal = if is_goal(state) {0.} else {INFINITY}; 
-        for ref action in robot_actions {
+        for action in robot_actions {
             let mut current_cost_to_goal = 0.;
-            for (ref nature_action, ref probability) in nature_behaviour {
+            for (nature_action, probability) in nature_behaviour {
                 let new_state = do_action(&state, &action, &nature_action, &available_states);
-                let position = available_states.iter().position(|ref x| x.i == new_state.i && x.j == new_state.j).unwrap();
-                let contribution = *probability * (costs_to_goal[position] + 1.);
+                let position = available_states.iter().position(|x| x.i == new_state.i && x.j == new_state.j).unwrap();
+                let contribution = probability * (costs_to_goal[position] + 1.);
                 current_cost_to_goal += contribution;
             }
             if current_cost_to_goal < min_cost_to_goal {
@@ -66,12 +66,12 @@ fn are_arrays_different(a1 : &[f32], a2 : &[f32], epsilon: f32)->bool {
 
 fn build_plan_based_on_costs_to_goal(available_states : &[State], robot_actions : &[Action], costs_to_goal: &[f32])->Vec<Action> {
     let mut plan = vec![];
-    for ref state in available_states {
+    for state in available_states {
         let mut min_cost_to_goal = if is_goal(state) {0.} else {INFINITY};
         let mut best_action = Action{di: 0, dj: 0};
-        for ref action in robot_actions {
+        for action in robot_actions {
             let new_state = do_action(&state, &action, &Action{di: 0, dj: 0}, &available_states);
-            let position = available_states.iter().position(|ref x| x.i == new_state.i && x.j == new_state.j).unwrap();
+            let position = available_states.iter().position(|x| x.i == new_state.i && x.j == new_state.j).unwrap();
             if costs_to_goal[position] + 1. < min_cost_to_goal {
                 min_cost_to_goal = costs_to_goal[position] + 1.;
                 best_action = Action{di: action.di, dj: action.dj};
@@ -84,7 +84,7 @@ fn build_plan_based_on_costs_to_goal(available_states : &[State], robot_actions 
 }
 
 fn build_optimal_plan(available_states : &[State], robot_actions : &[Action], nature_behaviour : &HashMap<Action, f32>)->(i32, Vec<f32>, Vec<Action>) {
-    let mut costs_to_goal = available_states.iter().map(|ref x| if is_goal(x) {0.} else {INFINITY}).collect::<Vec<f32>>();    
+    let mut costs_to_goal = available_states.iter().map(|x| if is_goal(x) {0.} else {INFINITY}).collect::<Vec<f32>>();    
     let mut x = 0;
     loop {
         let new_costs_to_goal = recalculate_cost_to_goals(&available_states, &robot_actions, &nature_behaviour, &costs_to_goal);
@@ -102,7 +102,7 @@ fn print_costs(available_states : &[State], costs_to_goal: &[f32]) {
     println!("Optimal costs to goal:");
     for y in 1..W + 1 {
         for x in 1..W + 1 {
-            match available_states.iter().position(|ref pos| pos.i == x && pos.j == y) {
+            match available_states.iter().position(|pos| pos.i == x && pos.j == y) {
                 Some(v)     => { let formatted_number = format!("{:.*}", 2, costs_to_goal[v]); print!("{}\t", formatted_number); }
                 None        => print!("\t")
             }
@@ -116,7 +116,7 @@ fn print_plan(available_states : &[State], plan : &[Action]) {
     println!("Optimal action plan:");
     for y in 1..W + 1 {
         for x in 1..W + 1 {
-            match available_states.iter().position(|ref pos| pos.i == x && pos.j == y) {
+            match available_states.iter().position(|pos| pos.i == x && pos.j == y) {
                 Some(v)     => print!("{},{}\t", plan[v].di, plan[v].dj),
                 None        => print!("\t")
             }
@@ -130,8 +130,8 @@ fn choose_nature_action_randomly(nature_behaviour : &HashMap<Action, f32>)->Acti
     let mut rng = rand::thread_rng();
     let a = between.ind_sample(&mut rng);
     let mut sum = 0f32;
-    for (ref nature_action, ref probability) in nature_behaviour {
-        sum += **probability;
+    for (nature_action, probability) in nature_behaviour {
+        sum += *probability;
         if sum >= a {
             return Action{di: nature_action.di, dj: nature_action.dj};
         }
@@ -144,7 +144,7 @@ fn simulate_robot(nature_behaviour : &HashMap<Action, f32>, start_state : &State
     let mut total_cost = 0;
     loop {
         let nature_action = choose_nature_action_randomly(&nature_behaviour);
-        let action = &plan[available_states.iter().position(|ref x| x.i == current_state.i && x.j == current_state.j).unwrap()];
+        let action = &plan[available_states.iter().position(|x| x.i == current_state.i && x.j == current_state.j).unwrap()];
         current_state = do_action(&current_state, action, &nature_action, available_states);
         total_cost += 1;
         if is_goal(&current_state) {
