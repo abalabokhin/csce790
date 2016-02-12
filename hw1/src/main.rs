@@ -21,7 +21,7 @@ struct Action {
 
 fn is_goal(x: &State) -> bool { x.i > 2 * W / 3 && x.j > 2 * W / 3 }
 
-fn do_action(st : &State, robot_action : &Action, nature_action : &Action, available_states : &Vec<State>) -> State {
+fn do_action(st : &State, robot_action : &Action, nature_action : &Action, available_states : &[State]) -> State {
     let new_state = State{i: st.i + robot_action.di + nature_action.di, j : st.j + robot_action.dj + nature_action.dj};
     match available_states.iter().position(|ref x| x.i == new_state.i && x.j == new_state.j) {
         Some(_x)    => new_state,
@@ -30,10 +30,10 @@ fn do_action(st : &State, robot_action : &Action, nature_action : &Action, avail
 }
 
 fn recalculate_cost_to_goals(
-    available_states : &Vec<State>, 
-    robot_actions : &Vec<Action>, 
+    available_states : &[State], 
+    robot_actions : &[Action], 
     nature_behaviour : &HashMap<Action, f32>, 
-    costs_to_goal : &Vec<f32>)->Vec<f32> {
+    costs_to_goal : &[f32])->Vec<f32> {
     
     let mut new_costs_to_goal = vec![];
     for ref state in available_states {
@@ -55,7 +55,7 @@ fn recalculate_cost_to_goals(
     return new_costs_to_goal;
 }
 
-fn are_arrays_different(a1 : &Vec<f32>, a2 : &Vec<f32>, epsilon: f32)->bool {
+fn are_arrays_different(a1 : &[f32], a2 : &[f32], epsilon: f32)->bool {
     for i in 0..a1.len() {
         if (a1[i] - a2[i]).abs() > epsilon {
             return true;
@@ -64,7 +64,7 @@ fn are_arrays_different(a1 : &Vec<f32>, a2 : &Vec<f32>, epsilon: f32)->bool {
     return false;
 }
 
-fn build_plan_based_on_costs_to_goal(available_states : &Vec<State>, robot_actions : &Vec<Action>, costs_to_goal: &Vec<f32>)->Vec<Action> {
+fn build_plan_based_on_costs_to_goal(available_states : &[State], robot_actions : &[Action], costs_to_goal: &[f32])->Vec<Action> {
     let mut plan = vec![];
     for ref state in available_states {
         let mut min_cost_to_goal = if is_goal(state) {0.} else {INFINITY};
@@ -83,12 +83,12 @@ fn build_plan_based_on_costs_to_goal(available_states : &Vec<State>, robot_actio
     return plan; 
 }
 
-fn build_optimal_plan(available_states : &Vec<State>, robot_actions : &Vec<Action>, nature_behaviour : &HashMap<Action, f32>)->(i32, Vec<f32>, Vec<Action>) {
+fn build_optimal_plan(available_states : &[State], robot_actions : &[Action], nature_behaviour : &HashMap<Action, f32>)->(i32, Vec<f32>, Vec<Action>) {
     let mut costs_to_goal = available_states.iter().map(|ref x| if is_goal(x) {0.} else {INFINITY}).collect::<Vec<f32>>();    
     let mut x = 0;
     loop {
         let new_costs_to_goal = recalculate_cost_to_goals(&available_states, &robot_actions, &nature_behaviour, &costs_to_goal);
-        if !are_arrays_different(&new_costs_to_goal, &costs_to_goal, 0.1) {
+        if !are_arrays_different(&new_costs_to_goal, &costs_to_goal, 0.001) {
             break;
         }
         costs_to_goal = new_costs_to_goal;
@@ -98,7 +98,7 @@ fn build_optimal_plan(available_states : &Vec<State>, robot_actions : &Vec<Actio
     return (x, costs_to_goal, plan);
 }
 
-fn print_costs(available_states : &Vec<State>, costs_to_goal: &Vec<f32>) {
+fn print_costs(available_states : &[State], costs_to_goal: &[f32]) {
     println!("Optimal costs to goal:");
     for y in 1..W + 1 {
         for x in 1..W + 1 {
@@ -112,7 +112,7 @@ fn print_costs(available_states : &Vec<State>, costs_to_goal: &Vec<f32>) {
 }
 
 
-fn print_plan(available_states : &Vec<State>, plan : &Vec<Action>) {
+fn print_plan(available_states : &[State], plan : &[Action]) {
     println!("Optimal action plan:");
     for y in 1..W + 1 {
         for x in 1..W + 1 {
@@ -139,7 +139,7 @@ fn choose_nature_action_randomly(nature_behaviour : &HashMap<Action, f32>)->Acti
     return Action{di: 0, dj: 0};
 }
 
-fn simulate_robot(nature_behaviour : &HashMap<Action, f32>, start_state : &State, available_states : &Vec<State>, plan : &Vec<Action>)->i32 {
+fn simulate_robot(nature_behaviour : &HashMap<Action, f32>, start_state : &State, available_states : &[State], plan : &[Action])->i32 {
     let mut current_state = State{i: start_state.i, j: start_state.j};
     let mut total_cost = 0;
     loop {
