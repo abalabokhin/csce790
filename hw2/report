@@ -1,0 +1,9 @@
+1. Assuming that 0 axis is X axis and 1 axis is Y axis. If Yk = (0, b), sensor preimage is all the points between two lines: x = b-1.5 and x = b+1.5. It looks like a vertical rectangle from -inf to +inf on Y axis and from b-1.5 to b+1.5 on X axis.
+If the observation Yk = (1, b) the rectangle is horizontal.
+
+2. Forward projection F((x1, x2), (u1, u2)) is a square with sides of 1 with a center in (x1+u1+0.25, x2+u2-0.25)
+
+3. The nondeterministic I-state will always be a rectangle. 
+Without obseravation, forward projection would be a square, but an observation can cut the square with lines parallel to axis to make a rectangle out of square. 
+
+4. 
