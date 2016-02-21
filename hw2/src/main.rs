@@ -57,16 +57,26 @@ impl Observation {
 }
 
 fn main() {
-    let nature_action = Action { dx0: [-0.25, 0.75], dx1: [-0.75, 0.25] };
+    let nature_distortion = Action { dx0: [-0.25, 0.75], dx1: [-0.75, 0.25] };
     let mut st1 = State{ x0: [-10., 10.], x1: [-10., 10.] }; 
-    println!("{:?}", st1);
-    st1.refine_with_observation(&Observation::new(0, 0.5));                               
-    println!("{:?}", st1);
-    st1.forward_projection(&Action::new_det ( 2., 2. ), &nature_action);
-    println!("{:?}", st1);
-    st1.refine_with_observation(&Observation::new(1, 6.));
-    println!("{:?}", st1);
-    st1.forward_projection(&Action::new_det ( 2., 2. ), &nature_action);
-    println!("{:?}", st1);
+    println!("3.");
+    println!("{:?}", st1); 
+    let ob1 = Observation::new(0, 0.5);
+    st1.refine_with_observation(&ob1);                               
+    println!("{:?}, {:?}", ob1, st1);
+    let act1 = Action::new_det ( 2., 2. );
+    st1.forward_projection(&act1, &nature_distortion);
+    println!("{:?}, {:?}", act1, st1);
+    let ob2 = Observation::new(1, 6.);
+    st1.refine_with_observation(&ob2);
+    println!("{:?}, {:?}", ob2, st1);
+    st1.forward_projection(&act1, &nature_distortion);
+    println!("{:?}, {:?}", act1, st1);
+
+    println!("4.");
+
+
+
+
 
 } 
