@@ -121,7 +121,7 @@ fn main() {
   
     let mut areas : [f32; 500] = [0f32; 500];
 
-    for i in 1..500 {
+    for i in 0..500 {
         let area = nondetermenistic_state.area();
         areas[i] = area;
         if area > max_area {
@@ -139,7 +139,10 @@ fn main() {
         nondetermenistic_state.refine_with_observation(&obs);
     }
 
-//    println!("{:?}", areas);
+    for i in 0..500 {
+        print!(" {}", areas[i]);
+    }
+    println!("");
     println!("{}", min_area);
     println!("{}", max_area);
 
