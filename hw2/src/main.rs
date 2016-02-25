@@ -6,7 +6,7 @@ use rand::distributions::{IndependentSample, Range};
 //use std::cmp;
 use std::f32;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 struct State {
     x0: [f32; 2],
     x1: [f32; 2],
@@ -82,7 +82,7 @@ fn do_observation(st: &State)->Observation {
     let mut rng = rand::thread_rng();
     let x = between.ind_sample(&mut rng);
 
-    let between1 = Range::new(0, 1);
+    let between1 = Range::new(0, 2);
     let axis = between1.ind_sample(&mut rng);
 
     match axis {
@@ -113,6 +113,8 @@ fn main() {
 
     let mut min_area = f32::MAX;
     let mut max_area = 0f32;
+    let mut min_area_state = State{x0: [0., 0.], x1: [0., 0.,]};
+    let mut max_area_state = State{x0: [0., 0.], x1: [0., 0.,]};
 
     let mut nondetermenistic_state = State{ x0: [-10., 10.], x1: [-10., 10.] };
     let mut determenistic_state = State{ x0: [0., 0.], x1: [0., 0.] };     
@@ -126,9 +128,11 @@ fn main() {
         areas[i] = area;
         if area > max_area {
             max_area = area;
+            max_area_state = nondetermenistic_state.clone();
         }
         if area < min_area {
             min_area = area;
+            min_area_state = nondetermenistic_state.clone();
         }
 
         let nature_action = generate_nature_action();
@@ -143,8 +147,6 @@ fn main() {
         print!(" {}", areas[i]);
     }
     println!("");
-    println!("{}", min_area);
-    println!("{}", max_area);
-
-
+    println!("state {:?} has min area {}", min_area_state, min_area);
+    println!("state {:?} has max area {}", max_area_state, max_area);
 } 
