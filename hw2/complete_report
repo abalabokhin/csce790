@@ -1,0 +1,22 @@
+1. Assuming that 0 axis is X axis and 1 axis is Y axis. If Yk = (0, b), sensor preimage is all the points between two lines: x = b - 1.5 and x = b + 1.5. It looks like a vertical rectangle from -inf to +inf on Y axis and from b-1.5 to b+1.5 on X axis. If the observation Yk = (1, b) the rectangle is horizontal.
+
+2. Forward projection F((x1, x2), (u1, u2)) is a square with sides of 1 with a center in (x1+u1+0.25, x2+u2-0.25)
+
+3. The nondeterministic I-state will always be a rectangle. Without obseravations, forward projection would be a square, but an observation can cut the square with lines parallel to axis to make a rectangle out of square. 
+
+4.  State { x0: [-10, 10], x1: [-10, 10] }
+    Observation { axis: 0, x: [-1, 2] }, State { x0: [-1, 2], x1: [-10, 10] }
+    Action { dx0: [2], dx1: [2] }, State { x0: [0.75, 4.75], x1: [-8.75, 12.25] }
+    Observation { axis: 1, x: [4.5, 7.5] }, State { x0: [0.75, 4.75], x1: [4.5, 7.5] }
+    Action { dx0: [2], dx1: [2] }, State { x0: [2.5, 7.5], x1: [5.75, 9.75] }
+
+5.  State { x0: [-28.384077, -22.91265], x1: [-37.462, -37.06181] } has min area 2.189623
+    State { x0: [-0.92127085, 2.0787292], x1: [-10, 10] } has max area 60
+
+6. 
+a)  The goal of the robot is to be in any point from square [-2, 2] x [-2, 2], and the robot must know it. It means the if the robot knows after any observation that his nondetermenistic state is withing this region, it is done. The nature can affect the robot movement by [-0.25, +0.75] x [-0.75, 0.25]. Assuming the worst-case reasoning the good idea for robot is to aim the square [-1.75, 1.25] x [-1.25, 1.75]. For simplicity, the robot can aim the middle of this squre, point: (-0.25, 0.25). However, the robot doesn't know its current state, but all the states are equally likely. So, the robot can calculate the movement from the center of its nondetermenistic state. Thus, the strategy is: calculating the center point of current non determenistic state. 
+Aiming the point (-0.25, 0.25) from the center point. Generate an action that moves robot as close as possible to the goal point, considering action robot limitations [-5, +5] x [-5, +5]. 
+
+c)  average steps amount to reach the goal: 7.003
+    min steps amount to reach the goal: 3
+    max steps amount to reach the goal: 39

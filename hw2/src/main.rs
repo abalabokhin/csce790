@@ -138,7 +138,7 @@ fn main() {
   
     for _ in 0..500 {
         let area = nondetermenistic_state.area();
-        print!("{}", area);
+        println!("{} ", area);
         if area > max_area {
             max_area = area;
             max_area_state = nondetermenistic_state.clone();
