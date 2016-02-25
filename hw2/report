@@ -4,6 +4,15 @@ If the observation Yk = (1, b) the rectangle is horizontal.
 2. Forward projection F((x1, x2), (u1, u2)) is a square with sides of 1 with a center in (x1+u1+0.25, x2+u2-0.25)
 
 3. The nondeterministic I-state will always be a rectangle. 
-Without obseravation, forward projection would be a square, but an observation can cut the square with lines parallel to axis to make a rectangle out of square. 
+Without obseravations, forward projection would be a square, but an observation can cut the square with lines parallel to axis to make a rectangle out of square. 
 
 4. 
+
+5.
+
+6. a) The goal of the robot is to be in any point from square [-2, 2] x [-2, 2], and the robot must know it. 
+It means the if the robot knows after any observation that his nondetermenistic state is withing this region, it is done. 
+The nature can affect the robot movement by [-0.25, +0.75] x [-0.75, 0.25]. Assuming the worst-case reasoning the good idea for robot is to aim the square [-1.75, 1.25] x [-1.25, 1.75]. 
+For simplicity, the robot can aim the middle of this squre, point: (-0.25, 0.25). However, the robot doesn't know its current state, but all the states are equally likely. 
+So, the robot can calculate the movement from the center of its nondetermenistic state. Thus, the strategy is: calculating the center point of current non determenistic state. 
+Aiming the point (-0.25, 0.25) from the center point. Generate an action that moves robot as close as possible to the goal point, considering action robot limitations [-5, +5] x [-5, +5]. 

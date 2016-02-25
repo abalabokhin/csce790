@@ -1,10 +1,9 @@
 extern crate rand;
 
-//use std::collections::BTreeMap;
-//use std::collections::HashMap;
 use rand::distributions::{IndependentSample, Range};
-//use std::cmp;
+use std::cmp;
 use std::f32;
+use std::i32;
 
 #[derive(Debug, Clone)]
 struct State {
@@ -35,6 +34,10 @@ impl State {
     fn area(&self) -> f32 {
         (self.x0[1] - self.x0[0]) * (self.x1[1] - self.x1[0])
     }
+
+    fn center(&self) -> (f32, f32) {
+        ((self.x0[1] + self.x0[0]) / 2., (self.x1[1] + self.x1[0]) / 2.)
+    }
 }
 
 #[derive(Debug)]
@@ -61,7 +64,7 @@ impl Observation {
     }
 }
 
-fn generate_nature_action()->Action {
+fn generate_nature_action_randomly()->Action {
     let between = Range::new(0f32, 1.);
     let mut rng = rand::thread_rng();
     let x0 = between.ind_sample(&mut rng) - 0.25;
@@ -69,12 +72,25 @@ fn generate_nature_action()->Action {
     return Action{ dx0 : [x0, x0], dx1 : [x1, x1] };
 }
 
-fn generate_robot_action()->Action {
+fn generate_robot_action_randomly()->Action {
     let between = Range::new(-5f32, 5.);
     let mut rng = rand::thread_rng();
     let x0 = between.ind_sample(&mut rng);
     let x1 = between.ind_sample(&mut rng);
     return Action{ dx0 : [x0, x0], dx1 : [x1, x1] };
+}
+
+fn generate_smart_robot_action(st : &State)->Action {
+    let center = st.center();
+    let mut x0 = -0.25 - center.0;
+    let mut x1 = 0.25 - center.1;
+
+    if x0 < -5. { x0 = -5. }
+    if x0 > 5. { x0 = 5. }
+    if x1 < -5. { x1 = -5. }
+    if x1 > 5. { x1 = 5. }
+
+    return Action { dx0 : [x0, x0], dx1 : [x1, x1] };
 }
 
 fn do_observation(st: &State)->Observation {
@@ -90,7 +106,6 @@ fn do_observation(st: &State)->Observation {
         _ => { return Observation::new(1, st.x1[0] + x); }
     }
 }
-
 
 fn main() {
     let nature_distortion = Action { dx0: [-0.25, 0.75], dx1: [-0.75, 0.25] };
@@ -121,11 +136,9 @@ fn main() {
     let obs = do_observation(&determenistic_state);
     nondetermenistic_state.refine_with_observation(&obs);
   
-    let mut areas : [f32; 500] = [0f32; 500];
-
-    for i in 0..500 {
+    for _ in 0..500 {
         let area = nondetermenistic_state.area();
-        areas[i] = area;
+        print!("{}", area);
         if area > max_area {
             max_area = area;
             max_area_state = nondetermenistic_state.clone();
@@ -135,18 +148,45 @@ fn main() {
             min_area_state = nondetermenistic_state.clone();
         }
 
-        let nature_action = generate_nature_action();
-        let robot_action = generate_robot_action();
+        let nature_action = generate_nature_action_randomly();
+        let robot_action = generate_robot_action_randomly();
         determenistic_state.forward_projection(&robot_action, &nature_action);
         nondetermenistic_state.forward_projection(&robot_action, &nature_distortion);
         let obs = do_observation(&determenistic_state);
         nondetermenistic_state.refine_with_observation(&obs);
     }
 
-    for i in 0..500 {
-        print!(" {}", areas[i]);
-    }
     println!("");
     println!("state {:?} has min area {}", min_area_state, min_area);
     println!("state {:?} has max area {}", max_area_state, max_area);
+
+    println!("6.c");
+
+    let mut total_steps_count = 0;
+    let mut min_steps_count = i32::MAX;
+    let mut max_steps_count = 0;
+    
+    for _ in 0..1000 {
+        let mut nondetermenistic_state = State{ x0: [-10., 10.], x1: [-10., 10.] };
+        let mut determenistic_state = State{ x0: [9.5, 9.5], x1: [9.5, 9.5] };     
+        let obs = do_observation(&determenistic_state);
+        nondetermenistic_state.refine_with_observation(&obs);
+
+        let mut steps_count = 0;
+        while !nondetermenistic_state.is_goal() {
+            steps_count += 1;
+            let robot_action = generate_smart_robot_action(&nondetermenistic_state);
+            let nature_action = generate_nature_action_randomly();
+            determenistic_state.forward_projection(&robot_action, &nature_action);
+            nondetermenistic_state.forward_projection(&robot_action, &nature_distortion);
+            let obs = do_observation(&determenistic_state);
+            nondetermenistic_state.refine_with_observation(&obs);
+        }
+        total_steps_count += steps_count;
+        min_steps_count = cmp::min(min_steps_count, steps_count);
+        max_steps_count = cmp::max(max_steps_count, steps_count);
+    }
+    println!("average steps amount to reach the goal: {}", total_steps_count as f32 / 1000.);
+    println!("min steps to reach the goal: {}", min_steps_count);
+    println!("max steps to reach the goal: {}", max_steps_count);
 } 
